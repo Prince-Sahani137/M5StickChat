@@ -53,7 +53,7 @@ The local Ollama server also provides `/api/tags`, which StickChat uses to list 
 
 ```bash
 git clone https://github.com/Prince-Sahani137/M5StickChat.git
-cd StickChat
+cd M5StickChat
 ```
 
 ### 2. Install PlatformIO on Linux
