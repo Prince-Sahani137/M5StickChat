@@ -1,0 +1,24 @@
+# PlatformIO
+.pio/
+.piolibdeps/
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets
+.env
+.env.*
+secrets.h
+*.secret
+
+# Temporary files
+*.swp
+*.swo
+.DS_Store
