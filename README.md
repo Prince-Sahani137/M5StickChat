@@ -5,9 +5,7 @@
 <h1 align="center">StickChat</h1>
 <p align="center"><strong>A tiny Wi-Fi AI chat client for the M5StickC Plus2, powered by Ollama.</strong></p>
 
-<p align="center">
-  <img src="assets/stickchat-features-overview.png" alt="StickChat feature overview" width="900">
-</p>
+
 
 
 **A tiny Wi-Fi AI chat client for the M5StickC Plus2, powered by Ollama.**
