@@ -1,13 +1,20 @@
-# StickChat
+<p align="center">
+  <img src="assets/stickchat-logo.png" alt="StickChat logo" width="560">
+</p>
 
-**A pocket-sized AI chat client and productivity companion for the M5StickC Plus2, powered by Ollama.**
+<h1 align="center">StickChat</h1>
+<p align="center"><strong>A tiny Wi-Fi AI chat client for the M5StickC Plus2, powered by Ollama.</strong></p>
 
-StickChat turns the M5StickC Plus2 into a tiny Wi-Fi-connected interface for chatting with models running on your laptop or through the Ollama Cloud API. It combines a compact three-button chat interface with a home-screen clock, timer, stopwatch and daily alarm.
+<p align="center">
+  <img src="assets/stickchat-features-overview.png" alt="StickChat feature overview" width="900">
+</p>
 
-> Built by Prince Sahani as a first-ever build, with the help of Claude (Anthropic). The interface is inspired by the menu style of ESP32 Marauder.
 
-**Current version: v1.1.0** — see [RELEASE_NOTES.md](RELEASE_NOTES.md) for what changed.
+**A tiny Wi-Fi AI chat client for the M5StickC Plus2, powered by Ollama.**
 
+StickChat turns the M5StickC Plus2 into a pocket-sized interface for chatting with an Ollama model running on your laptop or with a model available through the Ollama cloud API. It uses the device's 240 × 135 display and three-button controls, with a compact menu-driven interface.
+
+> Built by Prince Sahani. The interface is inspired by the menu style of ESP32 Marauder.
 ## Features
 
 ### AI chat
