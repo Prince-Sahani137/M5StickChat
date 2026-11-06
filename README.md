@@ -342,7 +342,7 @@ M5StickChat/
 
 ## Credits
 
-Built by **Prince Sahani** as a first-ever build, with a lot of help from **Claude (Anthropic)**. UI style inspired by [ESP32 Marauder](https://github.com/justcallmekoko/ESP32Marauder).
+Built by **Prince Sahani** as a first-ever build. UI style inspired by [ESP32 Marauder](https://github.com/justcallmekoko/ESP32Marauder).
 
 ## License
 
