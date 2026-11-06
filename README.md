@@ -2,53 +2,57 @@
 
 **A pocket-sized AI chat client and productivity companion for the M5StickC Plus2, powered by Ollama.**
 
-StickChat turns the M5StickC Plus2 into a tiny Wi-Fi-connected interface for chatting with models running on your laptop or through the Ollama Cloud API. It combines a compact, three-button chat interface with a clock, timer, stopwatch, and daily alarm.
+StickChat turns the M5StickC Plus2 into a tiny Wi-Fi-connected interface for chatting with models running on your laptop or through the Ollama Cloud API. It combines a compact three-button chat interface with a home-screen clock, timer, stopwatch and daily alarm.
 
-> Built by Prince Sahani. The interface is inspired by the menu style of ESP32 Marauder.
+> Built by Prince Sahani as a first-ever build, with the help of Claude (Anthropic). The interface is inspired by the menu style of ESP32 Marauder.
+
+**Current version: v1.1.0** — see [RELEASE_NOTES.md](RELEASE_NOTES.md) for what changed.
 
 ## Features
 
 ### AI chat
 
-- **On-device chat interface** — enter prompts using the three-button on-screen keyboard.
-- **Local Ollama support** — connect to an Ollama server running on a laptop or another computer on your Wi-Fi network.
-- **Ollama Cloud support** — optionally connect to `ollama.com` using an API key.
-- **Local/cloud fallback** — use the preferred endpoint and fall back to the other configured endpoint when available.
-- **Streaming responses** — display generated reply text as it arrives instead of waiting for the complete response.
-- **Model browser** — fetch available model names from the local or cloud Ollama API and select a model on the device.
-- **Cloud model availability scan** — test unclassified cloud models with a small request and cache the results for later selection.
-- **Conversation context** — keep a short rolling conversation history during the current chat session.
-- **Prompt shortcuts and history** — use prompt shortcuts or reuse recent prompts.
-- **Reply length options** — choose short, normal, or detailed responses.
-- **Language options** — choose automatic language, English, or Hinglish (Hindi written in English letters).
-- **Cancel generation** — stop an in-progress AI response from the device.
+- **On-device chat interface** — type prompts with the three-button on-screen keyboard (three layers: lowercase, uppercase, symbols).
+- **Local Ollama support** — connect to an Ollama server on your laptop or another computer on your Wi-Fi.
+- **Ollama Cloud support** — optionally connect to `ollama.com` with an API key.
+- **Local/cloud fallback** — use the preferred endpoint and fall back to the other when it is unreachable.
+- **Streaming responses** — reply text appears as it is generated; hold **A** to stop a reply early.
+- **Model browser** — list models from the laptop or from ollama.com and pick one on the device.
+- **Free-tier model scan** — test cloud models with a tiny request, hide the ones your plan blocks, and cache the results (rate-limit aware, see below).
+- **Conversation context** — a rolling history of the last 8 messages / ~3000 characters.
+- **Prompt LIST key** — re-send any of your last 10 prompts or start from a preset such as "Summarize:" or "Translate to Hindi:".
+- **Reply style** — Short (~40 words), Normal (~80) or Detailed (~200), and Auto / English / Hinglish (Hindi in English letters) language.
 
-### Clock and time
+### Home screen, clock and time
 
-- **Digital home screen clock** — show the current time and date.
-- **NTP time synchronization** — synchronize the clock over the internet.
-- **Timezone setting** — configure the local timezone.
-- **12/24-hour format** — choose how the time is displayed.
-- **RTC persistence** — retain clock time across supported sleep and wake cycles.
+- **Home screen** — big clock with seconds, date, the model that will answer, your last prompt, and live chips for a running timer (`T`), stopwatch (`SW`), snooze (`Z`) and alarm (`AL`).
+- **Status header** — link mode (`LAN` / `CLD` / `off`) and a battery icon with percentage (red at 15% or below).
+- **NTP time sync** — automatic, with retries until it succeeds (3 time servers).
+- **RTC persistence** — the Plus2's clock chip keeps the time across deep sleep and power-off.
+- **Timezone and 12/24-hour format** — 14 timezones, India (UTC+5:30) by default.
 
-### Timer, stopwatch, and alarm
+### Timer, stopwatch and alarm (Tools menu)
 
-- **Countdown timer** — use presets or set a custom duration from 1 to 600 minutes.
-- **Timer adjustment** — add one minute while a timer is running.
-- **Stopwatch** — start, pause, and reset elapsed time.
-- **Lap recording** — record and review stopwatch laps (up to 20).
-- **Daily alarm** — set an alarm time with an audible alert.
-- **Snooze** — snooze an alarm for five minutes.
+- **Countdown timer** — presets (1–60 min) or a custom 1–600 minutes, with +1 minute while running.
+- **Stopwatch** — start/stop, reset, and up to 20 laps.
+- **Daily alarm** — pick the time with a spinner; flashing screen and beeps; **snooze 5 minutes** (its own countdown, independent of the timer).
+- **Alerts keep working** while a reply is streaming, while connecting to Wi-Fi and while scanning models.
 
-### Device interface and power
+### Look, sleep and power
 
-- **Compact reply viewer** — wrapped text with button-based scrolling.
-- **Animated boot logo** — show the StickChat logo during startup.
-- **Sleep/wake animations** — visual transitions for display sleep and wake.
-- **Display controls** — adjust brightness and screen timeout.
-- **Deep-sleep option** — configure the device's power-saving behavior.
-- **Battery status** — show battery level and low-battery warnings.
-- **Persistent settings** — save device settings using ESP32 Preferences/NVS flash.
+- **Original logo** drawn in code (no image data) — plays on boot, when the screen sleeps and when it wakes (2 seconds each; easy to change, see below).
+- **Screen-off sleep** (15 s – 2 min) and **deep sleep** (off / 2 / 5 / 10 min) with button-A wake.
+- **Deep sleep that respects alarms** — timers, snooze, alarm and a running stopwatch survive deep sleep; the chip wakes itself about 12 seconds before the next event.
+- **Low-battery warning** — beeps and a message at 15% (every 5 min) and 5% (every 2 min).
+- **Frequency scaling** — runs at 80 MHz and speeds up to 160 MHz only for HTTPS work.
+
+### Security and reliability
+
+- **Verified HTTPS** — the root CA for ollama.com is pinned and checked (needs a valid clock, which the stick syncs for you).
+- **Settings validation** — corrupt or out-of-range saved values are reset to safe defaults at boot.
+- **Rate-limit handling** — HTTP 429 pauses model scanning for 10 minutes; models that time out are skipped for 30 minutes.
+- **Authentication errors are told apart from plan restrictions** — "API key rejected" is not the same as "model not in the free tier".
+- **Memory guards** — conversation size cap, tail-only streaming redraw, free-heap check before each cloud request, and heap numbers on the About screen.
 
 ## Hardware and software
 
@@ -56,29 +60,28 @@ StickChat turns the M5StickC Plus2 into a tiny Wi-Fi-connected interface for cha
 
 - M5Stack **M5StickC Plus2**
 - USB data cable
-- A Wi-Fi network
+- A Wi-Fi network (2.4 GHz)
 - A laptop or computer running Ollama for local mode, or an Ollama Cloud API key for cloud mode
 
 ### Build environment
 
 - PlatformIO Core / PlatformIO IDE
 - Espressif32 Arduino framework
-- Libraries declared in `platformio.ini`, including:
-  - `M5Unified`
-  - `ArduinoJson` 7
+- Python 3 and `openssl` (only for the one-time certificate step)
+- Libraries declared in `platformio.ini`: `M5Unified`, `ArduinoJson` 7
 
-The project environment is `m5stickc-plus2`.
+The project environment is `m5stickc-plus2` (8 MB flash layout, needed for TLS).
 
 ## How it works
 
-1. The M5StickC Plus2 joins the configured Wi-Fi network.
-2. For local mode, it sends an Ollama-compatible `POST /api/chat` request to `http://HOST:PORT/api/chat`.
-3. For cloud mode, it sends the request to `https://ollama.com/api/chat` with a bearer API key.
-4. The response is streamed to the device and displayed in the reply viewer.
+1. The StickC joins the configured Wi-Fi network.
+2. **Local mode:** it sends `POST http://HOST:PORT/api/chat` to your Ollama server.
+3. **Cloud mode:** it sends `POST https://ollama.com/api/chat` with a bearer API key over verified TLS.
+4. The reply is streamed back line by line and drawn on the display as it arrives.
 
-The local Ollama server provides `/api/tags`, which StickChat uses to list available models. The cloud model list is fetched from `https://ollama.com/api/tags`.
+Model lists come from `/api/tags` on the local server or from `https://ollama.com/api/tags`.
 
-## Getting started
+## Getting started (tutorial)
 
 ### 1. Clone the repository
 
@@ -89,27 +92,16 @@ cd M5StickChat
 
 ### 2. Install PlatformIO on Linux
 
-One option is to install PlatformIO Core in a Python virtual environment:
-
 ```bash
 sudo apt update
 sudo apt install -y python3 python3-venv python3-pip git
 python3 -m venv ~/.venvs/platformio
 source ~/.venvs/platformio/bin/activate
 pip install -U platformio
-```
-
-Check that it is installed:
-
-```bash
 pio --version
 ```
 
-If you open a new terminal later, activate the environment again:
-
-```bash
-source ~/.venvs/platformio/bin/activate
-```
+In a new terminal, activate it again with `source ~/.venvs/platformio/bin/activate`.
 
 ### 3. Configure the device
 
@@ -128,161 +120,162 @@ Open `src/config.h` and set the first-boot defaults:
 #define DEF_USE_CLOUD 1
 ```
 
-What each setting means:
-
 | Setting | Purpose |
 |---|---|
-| `DEF_SSID` | Wi-Fi network name |
-| `DEF_PASS` | Wi-Fi password |
+| `DEF_SSID` / `DEF_PASS` | Wi-Fi name and password |
 | `DEF_HOST` | LAN IP address of the computer running Ollama |
-| `DEF_PORT` | Ollama API port; normally `11434` |
-| `DEF_MODEL` | Exact local model name shown by `ollama list` |
-| `DEF_API_KEY` | Ollama Cloud API key; use a placeholder if you are not using cloud |
-| `DEF_CLOUD_MODEL` | Default cloud model name |
-| `DEF_USE_CLOUD` | `1` enables cloud fallback; `0` disables it |
+| `DEF_PORT` | Ollama port, normally `11434` |
+| `DEF_MODEL` | Exact local model name from `ollama list` |
+| `DEF_API_KEY` | Ollama Cloud API key (leave a placeholder if you will not use cloud) |
+| `DEF_CLOUD_MODEL` | Cloud model name — **with a colon, no `-cloud` suffix** (for example `gpt-oss:20b`) |
+| `DEF_USE_CLOUD` | `1` enables cloud, `0` disables it |
 
-`config.h` provides **first-boot defaults**. After the device has saved a setting to NVS, changing the macro in `config.h` does not necessarily override the saved value. To change settings after first boot, use the device's **Settings** menu, or choose **Reset all settings** to clear saved values and reload the compiled defaults.
+`config.h` holds **first-boot defaults** only. After a value has been saved to flash (NVS), the saved value wins. Change settings later in the device's **Settings** menu, or use **Settings → Reset all settings** to reload the compiled defaults.
 
-#### Configure settings on the device
+> **Keep secrets out of git.** Do not commit your real Wi-Fi password or API key. Either keep placeholders in `config.h` and type the real values in the device's Settings, or run `git update-index --skip-worktree src/config.h` after editing it locally.
 
-Use the device's Settings menu to configure Wi-Fi, the laptop server, cloud access, display, and power options. The device also provides clock/time and chat preference options, including response length and language.
-
-The cloud API key is stored in the device's NVS preferences. See the security notes below.
+The old `SYSTEM_PROMPT` macro is no longer used: the system prompt is built from **Settings → Reply style**.
 
 ### 4. Set up local Ollama (optional)
 
-Install Ollama on your laptop/server and download at least one model. Then check:
-
-```bash
-ollama list
-```
-
-By default, Ollama listens on localhost. To allow a device on your trusted local network to reach it, start Ollama listening on the LAN interface:
+Install Ollama, download a model, and check it with `ollama list`. Ollama only listens on localhost by default, so allow your trusted LAN:
 
 ```bash
 OLLAMA_HOST=0.0.0.0:11434 ollama serve
 ```
 
-If Ollama is already running as a system service, configure the service environment instead of starting a second server. The exact method depends on how Ollama was installed.
+If Ollama runs as a system service, set the environment variable in the service configuration instead of starting a second server. Find your laptop's IP with `hostname -I` and use it as `DEF_HOST`. Keep the port on your trusted LAN; never expose `11434` to the internet.
 
-Find the laptop's LAN IP address:
-
-```bash
-hostname -I
-```
-
-Use the relevant LAN address in `DEF_HOST` or set it in the device's laptop-server settings. Keep the Ollama port restricted to your trusted LAN; do not expose port `11434` directly to the public internet.
-
-Test the endpoint from another device on the same network:
+Test from another device:
 
 ```bash
 curl http://YOUR_HOST_IP:11434/api/tags
 ```
 
-You should receive JSON containing the available models.
-
 ### 5. Set up Ollama Cloud (optional)
 
-1. Sign in to [Ollama](https://ollama.com/).
-2. Create an API key in [Ollama API keys](https://ollama.com/settings/keys).
-3. On StickChat, open the cloud settings.
-4. Enter the API key and desired cloud model.
-5. Enable cloud fallback if you want cloud to be available when local Ollama cannot be reached.
+1. Sign in at [ollama.com](https://ollama.com/) and create a key at [ollama.com/settings/keys](https://ollama.com/settings/keys). Use a key dedicated to this stick so you can revoke it if the stick is lost.
+2. On the stick: **Settings → Cloud** → enter the **API key** and **Cloud model**.
+3. Keep **Fallback ON** if you want cloud when the laptop is unreachable.
+4. Open **Menu → Models → Cloud** to browse and scan models (see [Model selection](#model-selection)).
 
-Cloud model availability and free-tier access can change. The built-in scan is a point-in-time test using a small request; it is not a guarantee of future availability or unlimited free usage. Scanning can take time and may encounter account or rate limits.
+Cloud availability and free-tier access change over time; the scan is a point-in-time test, not a guarantee.
+
+### 6. Create the certificate file (required, one time)
+
+StickChat verifies ollama.com's HTTPS certificate against a pinned root CA. Generate that file on your computer:
+
+```bash
+python3 tools/make_ca_header.py
+```
+
+It connects to ollama.com, prints the certificate chain it received, and writes `include/ollama_ca.h` (a public certificate — safe to commit). The build stops with a clear error if this file is missing.
+
+- If it says the root was not found: `sudo apt install --reinstall ca-certificates` and run it again.
+- If ollama.com ever changes certificate authority, run the script again and re-flash.
+- Emergency options: **Settings → Cloud → TLS check → OFF**, or build without a CA file by adding `-DALLOW_INSECURE_TLS` to `build_flags`. Both disable certificate checking; avoid them for anything sensitive.
 
 ## Build and flash
 
-Connect the M5StickC Plus2 over USB, then from the project root:
+Connect the StickC Plus2 by USB, then from the project folder:
 
 ```bash
-pio run
+pio run -e m5stickc-plus2 -t upload
 ```
 
-Upload the firmware:
-
-```bash
-pio run --target upload
-```
-
-If your device appears on a different port, specify it explicitly:
-
-```bash
-pio run --target upload --upload-port /dev/ttyUSB0
-```
-
-Find the detected serial device with:
+If the port differs from `/dev/ttyACM0` in `platformio.ini`:
 
 ```bash
 ls /dev/ttyACM* /dev/ttyUSB* 2>/dev/null
+pio run -e m5stickc-plus2 -t upload --upload-port /dev/ttyUSB0
 ```
 
-On Linux, if permission is denied, add your user to the serial-access group and log out/in:
+On Linux, if permission is denied, add yourself to the serial group and log out/in:
 
 ```bash
 sudo usermod -aG dialout "$USER"
 ```
 
-Some distributions use a different group or udev rule. Reconnect the board after changing permissions.
-
-To open the serial monitor:
-
-```bash
-pio device monitor --baud 115200
-```
+(Some distributions use a different group or a udev rule.) The serial monitor is `pio device monitor --baud 115200`; the firmware does not print anything sensitive there.
 
 ## Controls
 
-The device is used in landscape orientation.
+The device is used in landscape.
 
 | Control | Short click | Hold |
 |---|---|---|
-| **A** (front button) | Select / confirm / press the highlighted on-screen key | Back / backspace; screen-specific action |
-| **B** (side button) | Move down / move right | Page down / move left |
-| **PWR** (side button) | Move up / move to the next keyboard row | Page up / move to the previous keyboard row |
+| **A** (front) | Select / confirm / press the highlighted key | Back / backspace / stop a streaming reply |
+| **B** (side) | Down / right / next | Page down / left / bigger step |
+| **PWR** (side) | Up / next keyboard row | Page up / previous keyboard row / bigger step |
 
-On the home screen:
+**Home screen:** **A** opens the menu, **B** opens chat, **PWR** opens Settings.
 
-- **A** opens the main menu.
-- **B** opens chat.
-- **PWR** opens settings.
+### The on-screen keyboard
 
-The on-screen keyboard includes a **SEND** action. Prompt shortcuts and recent prompts are available when configured.
+- **B** moves right, **PWR** moves down a row (hold to go left / up), **A** types the highlighted key; hold **A** for backspace.
+- The bottom row is: layer switch (`abc` → `ABC` → `#+=`), `SPACE`, `DEL`, `LIST` (chat only), `SEND` / `OK`, `BACK`.
+- Shift is one-shot: it capitalizes one letter and switches back.
 
 ## Using StickChat
 
-1. Power on the M5StickC Plus2.
-2. Wait for it to connect to Wi-Fi.
-3. Open **Chat** from the home screen or main menu.
-4. Use the buttons to enter a prompt and select **SEND**.
-5. Watch the response stream onto the display.
-6. Read the reply; use the navigation buttons to scroll and continue the conversation.
-7. Choose **New chat** to clear the current conversation context.
+### Tutorial: your first chat
+
+1. Power on the stick and wait for the logo and the home screen.
+2. Press **B** to open chat (or **A → Chat**).
+3. Type a prompt with the keyboard, move to **SEND** and press **A**.
+4. Watch the reply stream in. Hold **A** to stop it early.
+5. When it finishes, scroll with **B** / **PWR** (hold for pages). Press **A** to ask a follow-up, or hold **A** to leave the chat.
+6. Choose **Menu → New chat** to start fresh (also cleared when you change the model or reply style).
+
+Tip: press **LIST** on the keyboard to reuse a recent prompt (`<`) or add a preset (`+`). Picking a recent prompt jumps the cursor to **SEND**.
 
 ### Model selection
 
-Choose **Models** from the main menu. StickChat checks which endpoints are reachable, fetches their model lists, and lets you choose a local or cloud model when available.
+**Menu → Models.** If both the laptop and cloud are available, choose which list to browse.
 
-For cloud models, the scanner tests models that have not yet been classified and stores the results. A model's availability can change, and a successful scan does not guarantee future access.
+- `>` marks the current model.
+- **Cloud list:** models you have confirmed work come first; `?` = not tested yet; `~` = failed temporarily (will not be retested for 30 minutes); models blocked on your plan are hidden.
+- **`* Scan free models *`** tests untested models with a 1-token request — at most **8 per scan**, with a short pause between them. Hold **A** to stop. A rate-limit (HTTP 429) pauses scanning for 10 minutes.
+- Picking a cloud model makes cloud the preferred route; picking a local model makes the laptop preferred.
 
-### Clock and productivity tools
+### Tutorial: timer, stopwatch and alarm
 
-Open **Tools** from the main menu to access the clock-related tools:
+Open **Menu → Tools**.
 
-- **Clock** — view or configure time-related options and synchronize time.
-- **Timer** — start a preset or custom countdown.
-- **Stopwatch** — measure elapsed time and record laps.
-- **Alarm** — configure a daily alarm and snooze an alert.
+- **Timer:** choose a preset or *Custom* (type minutes). While it runs: **A** stops, **B** adds a minute, **PWR** goes back (it keeps running; the home screen shows `T mm:ss`). When it ends the screen flashes and beeps — press any button.
+- **Stopwatch:** **A** start/stop, **B** lap (shows the last 4, keeps 20), **PWR** reset when stopped, hold **A** to go back (it keeps counting).
+- **Alarm:** set **ON**, then **Time**. In the spinner, **B**/**PWR** change the value (hold for bigger steps), **A** moves from hours to minutes and then saves, hold **A** cancels. When it rings, **A** snoozes 5 minutes (`Z mm:ss` on the home screen) and **B** stops it.
 
-The exact options shown depend on the current firmware configuration.
+Set the **timezone** and **12/24-hour** format in **Settings → Clock**; **Sync time now** (or **Menu → Sync clock**) fetches the time over Wi-Fi.
+
+### Settings map
+
+| Page | Options |
+|---|---|
+| **WiFi** | SSID, password |
+| **Laptop server** | Host, port, local model |
+| **Cloud (ollama.com)** | Fallback ON/OFF, cloud model, API key, TLS check |
+| **Display & power** | Brightness (40/80/120/180), screen off (15 s–2 min), deep sleep (off/2/5/10 min) |
+| **Clock** | Timezone, 12/24-hour, sync now |
+| **Reply style** | Length (short/normal/detailed), language (auto/English/Hinglish) |
+| **Reset all settings** | Clears saved settings and reloads `config.h` defaults |
+
+Choice-type options open a page that lists every choice with the current one marked `>`.
+
+## Sleep, wake and power
+
+- **Screen off** after the configured idle time: the logo plays, the screen fades out, Wi-Fi turns off.
+- **Wake** with any button: logo flash, the previous screen returns, Wi-Fi reconnects in the background.
+- **Deep sleep** after the configured longer idle time: wake with button **A** (a normal reboot, so the boot logo plays and the clock comes back from the RTC). The current conversation is cleared.
+- **Alarms, timers, snooze and the running stopwatch survive deep sleep.** The stick wakes about 12 seconds before the next event. It stays awake instead if the next event is under 40 seconds away or the clock is not set. Stopwatch laps are not kept.
+- Logo length: change `LOGO_BOOT_MS`, `LOGO_SLEEP_MS`, `LOGO_WAKE_MS` near the top of `src/main.cpp`.
 
 ## Configuration and data storage
 
-- Compiled first-boot defaults live in `src/config.h`.
-- Runtime settings are stored using ESP32 `Preferences` (NVS).
-- Recent prompt history is persisted in NVS.
-- The active conversation history is held in RAM and is cleared when starting a new chat or rebooting.
-- Clock/time state uses the device's available timekeeping and persistence facilities.
+- First-boot defaults live in `src/config.h`.
+- Runtime settings, prompt history, cached free-model results and the alarm are stored in ESP32 `Preferences` (NVS flash).
+- The active conversation is held in RAM only.
+- The clock is kept by the RTC chip (UTC); the timezone is applied on display.
 
 ## Repository layout
 
@@ -290,9 +283,14 @@ The exact options shown depend on the current firmware configuration.
 M5StickChat/
 ├── platformio.ini
 ├── extra_script.py
-├── logo.h
 ├── README.md
+├── RELEASE_NOTES.md
+├── SECURITY_AND_TESTING.md
 ├── LICENSE
+├── include/
+│   └── ollama_ca.h          <- generated by tools/make_ca_header.py
+├── tools/
+│   └── make_ca_header.py
 └── src/
     ├── config.h
     └── main.cpp
@@ -300,43 +298,52 @@ M5StickChat/
 
 ## Troubleshooting
 
+**Build error: "No TLS root certificate found"**
+- Run `python3 tools/make_ca_header.py` from the project folder and check that `include/ollama_ca.h` exists. If the build still cannot find it, copy it to `src/`.
+
+**The certificate script fails**
+- Read the "Chain sent by the server" lines it prints. Run `sudo apt install --reinstall ca-certificates` and try again. Needs `openssl` on the PATH.
+
+**Cloud request fails with a TLS / connection error**
+- The clock must be correct for HTTPS: use **Settings → Clock → Sync time now**. If ollama.com changed certificate authority, regenerate `ollama_ca.h` and re-flash.
+
+**"Cloud rejected the API key"**
+- Re-enter the key in **Settings → Cloud**, or create a new one at ollama.com/settings/keys.
+
+**"Not in free tier" for a model**
+- That model needs a paid plan. Pick another from **Models → Cloud**; the stick hides models it has seen blocked.
+
 **Wi-Fi does not connect**
-- Check the SSID and password in the device's Wi-Fi settings.
-- Confirm the network is 2.4 GHz compatible and reachable by the device.
-- Reboot the device after changing network settings if needed.
+- Check SSID/password in **Settings → WiFi**; the network must be 2.4 GHz.
 
 **Laptop/local model is unreachable**
-- Confirm the laptop and M5StickC Plus2 are on the same LAN.
-- Confirm Ollama is listening on the LAN interface and port `11434`.
-- Check the host IP in the laptop-server settings.
-- Check firewall rules on the laptop.
-
-**No cloud models / cloud requests fail**
-- Check the API key and cloud fallback setting.
-- Verify the selected model is currently available to your Ollama account.
-- A cloud API rate limit or plan restriction can prevent a model from working.
+- Same LAN? Ollama listening on `0.0.0.0:11434`? Host IP correct? Firewall open for the port?
 
 **Clock does not synchronize**
-- Check Wi-Fi connectivity and confirm the device can reach the internet.
-- Try the manual clock-sync option again.
-
-**Upload permission denied**
-- Check the port with `ls /dev/ttyACM* /dev/ttyUSB*`.
-- Check your serial permissions and serial-access group membership.
+- Check Wi-Fi and internet access; the stick retries automatically and you can use **Sync time now**.
 
 **Settings do not change after editing `config.h`**
-- Runtime values already saved in NVS take precedence. Use the Settings menu or reset all settings to reload compiled defaults.
+- Saved values take precedence: use **Reset all settings**.
+
+**Upload permission denied**
+- Check the port and your serial group membership (see *Build and flash*).
+
+**The stick says "Low memory"**
+- Restart it. The **About** screen shows free heap, minimum heap and the biggest free block, which helps spot problems.
 
 ## Security notes and known limitations
 
-- The local Ollama connection uses plain HTTP and has no authentication in this firmware. Use it only on a trusted LAN and firewall the port.
-- The current HTTPS implementation calls `setInsecure()`, which disables TLS certificate verification. HTTPS traffic is encrypted, but the firmware does not authenticate the server certificate. This should be improved before relying on it for sensitive conversations.
-- The cloud API key is stored in ESP32 NVS preferences; this firmware does not provide encrypted secret storage.
-- Cloud model scanning sends small test requests and may consume account usage or encounter rate limits.
-- Deep-sleep behavior may be limited while time-based features such as alarms are enabled.
-- This firmware targets the M5StickC Plus2 configuration in `platformio.ini`; other M5Stick models are not guaranteed to work without changes.
+- **Local mode uses plain HTTP with no authentication.** Use it only on a trusted LAN and firewall the port.
+- **Cloud HTTPS is verified** against a pinned root CA. Turning **TLS check** OFF (or building with `-DALLOW_INSECURE_TLS`) disables that protection.
+- **The API key is stored in plain text in flash.** Anyone with physical access and a USB cable can read it. The firmware never prints it and the Settings page only shows the last 4 characters. Use a dedicated key and revoke it if the stick is lost. Flash encryption is **not** enabled — see [SECURITY_AND_TESTING.md](SECURITY_AND_TESTING.md).
+- Cloud model scanning sends small test requests and may use account quota or hit rate limits.
+- Deep-sleep wake for alarms and timers is new in v1.1.0; the test steps are in `SECURITY_AND_TESTING.md`.
+- Only the M5StickC Plus2 configuration in `platformio.ini` is supported.
+
+## Credits
+
+Built by **Prince Sahani** as a first-ever build, with a lot of help from **Claude (Anthropic)**. UI style inspired by [ESP32 Marauder](https://github.com/justcallmekoko/ESP32Marauder).
 
 ## License
 
-This project is licensed under the MIT License.
-See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
